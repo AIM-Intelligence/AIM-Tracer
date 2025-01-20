@@ -107,7 +107,7 @@ export default function SignIn({
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <LangfuseIcon className="mx-auto" />
           <h2 className="mt-4 text-center text-2xl font-bold leading-9 tracking-tight text-primary">
-            Create new account
+            Create new accountefef
           </h2>
         </div>
         {env.NEXT_PUBLIC_LANGFUSE_CLOUD_REGION !== undefined ? (

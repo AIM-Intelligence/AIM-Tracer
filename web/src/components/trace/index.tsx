@@ -31,6 +31,7 @@ import {
   ChevronsDownUp,
   ChevronsUpDown,
   FilterIcon,
+  Grape,
   ListTree,
   Network,
   Percent,
@@ -52,10 +53,12 @@ import {
   TabsBarTrigger,
 } from "@/src/components/ui/tabs-bar";
 import { useHasEntitlement } from "@/src/features/entitlements/hooks";
+import { TraceGraphRagView } from "@/src/components/trace/AIMTraceGraphRagView";
+import { useActiveNodesStore } from "@/src/store/activeNodes";
 
 export function Trace(props: {
   observations: Array<ObservationReturnType>;
-  trace: Trace;
+  trace: Trace & { output?: any };
   scores: APIScore[];
   projectId: string;
   viewType?: "detailed" | "focused";
@@ -357,6 +360,7 @@ export function TracePage({
   );
 
   const hasTraceDeletionEntitlement = useHasEntitlement("trace-deletion");
+  const { clearActiveNodeLog } = useActiveNodesStore();
 
   if (trace.error?.data?.code === "UNAUTHORIZED")
     return <ErrorPage message="You do not have access to this trace." />;
@@ -473,6 +477,9 @@ export function TracePage({
       <TabsBar
         value={selectedTab}
         onValueChange={(tab) => {
+          if (tab !== "graphrag") {
+            clearActiveNodeLog(traceId);
+          }
           setSelectedTab(tab);
           capture("trace_detail:display_mode_switch", { view: tab });
         }}
@@ -481,6 +488,10 @@ export function TracePage({
           <TabsBarTrigger value="details">
             <Network className="mr-1 h-4 w-4"></Network>
             Tree
+          </TabsBarTrigger>
+          <TabsBarTrigger value="graphrag">
+            <Grape className="mr-1 h-4 w-4"></Grape>
+            GraphRAG
           </TabsBarTrigger>
           <TabsBarTrigger value="timeline">
             <ListTree className="mr-1 h-4 w-4"></ListTree>
@@ -498,6 +509,13 @@ export function TracePage({
             projectId={trace.data.projectId}
             observations={trace.data.observations}
           />
+        </TabsBarContent>
+        <TabsBarContent
+          value="graphrag"
+          className="mt-5 h-full flex-1 overflow-y-auto md:overflow-hidden md:overflow-y-hidden"
+        >
+          {/* AIM Intelligence */}
+          <TraceGraphRagView trace={trace.data} traceId={trace.data.id} />
         </TabsBarContent>
         <TabsBarContent
           value="timeline"

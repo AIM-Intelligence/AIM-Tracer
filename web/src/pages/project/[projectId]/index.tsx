@@ -29,6 +29,7 @@ import { useUiCustomization } from "@/src/ee/features/ui-customization/useUiCust
 import { ScrollScreenPage } from "@/src/components/layouts/scroll-screen-page";
 import { useClickhouse } from "@/src/components/layouts/ClickhouseAdminToggle";
 import { useEntitlementLimit } from "@/src/features/entitlements/hooks";
+import { AdverserialScoreAnalytics } from "@/src/features/dashboard/components/score-analytics/AdverserialScoreAnalytics";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -195,6 +196,22 @@ export default function Dashboard() {
         )}
       </div>
       <div className="grid w-full grid-cols-1 gap-3 overflow-hidden lg:grid-cols-2 xl:grid-cols-6">
+        {!disableExpensiveDashboardComponents && (
+          <AdverserialScoreAnalytics
+            className="col-span-1 flex-auto justify-between lg:col-span-full"
+            agg={agg}
+            projectId={projectId}
+            globalFilterState={mergedFilterState}
+          />
+        )}
+        {/* {!disableExpensiveDashboardComponents && (
+          <ScoreAnalytics
+            className="col-span-1 flex-auto justify-between lg:col-span-full"
+            agg={agg}
+            projectId={projectId}
+            globalFilterState={mergedFilterState}
+          />
+        )} */}
         <TracesBarListChart
           className="col-span-1 xl:col-span-2"
           projectId={projectId}
@@ -251,14 +268,6 @@ export default function Dashboard() {
             className="col-span-1 flex-auto justify-between lg:col-span-full"
             projectId={projectId}
             agg={agg}
-            globalFilterState={mergedFilterState}
-          />
-        )}
-        {!disableExpensiveDashboardComponents && (
-          <ScoreAnalytics
-            className="col-span-1 flex-auto justify-between lg:col-span-full"
-            agg={agg}
-            projectId={projectId}
             globalFilterState={mergedFilterState}
           />
         )}

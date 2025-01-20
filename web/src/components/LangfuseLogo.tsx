@@ -65,7 +65,7 @@ const LangfuseLogotypeOrCustomized = ({ size }: { size: "sm" | "xl" }) => {
           size === "sm" ? "text-sm" : "text-xl",
         )}
       >
-        Langfuse
+        AIM Supervisor
       </span>
     </div>
   );
@@ -92,7 +92,9 @@ export const LangfuseLogo = ({
         <Link href="/" className="flex items-center">
           <LangfuseLogotypeOrCustomized size={size} />
         </Link>
-        {version && (
+        {version! ? (
+          <></>
+        ) : (
           <VersionLabel className="ml-2 group-data-[collapsible=icon]:hidden" />
         )}
       </div>

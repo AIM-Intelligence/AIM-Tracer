@@ -278,6 +278,7 @@ export function TraceTimelineView({
   projectId: string;
   scores: APIScore[];
 }) {
+  
   const { latency, name, id } = trace;
   const [backgroundColor, setBackgroundColor] = useState("");
   const [expandedItems, setExpandedItems] = useSessionStorage<string[]>(

@@ -13,10 +13,10 @@ export default function PlaygroundPage() {
     <PlaygroundProvider>
       <FullScreenPage>
         <Header
-          title="Guard Playground"
+          title="Playground"
           help={{
-            description: "A sandbox to test and iterate your Safety Guardrails",
-            href: "#",
+            description: "A sandbox to test and iterate your prompts",
+            href: "https://langfuse.com/docs/playground",
           }}
           actionButtons={
             <>
