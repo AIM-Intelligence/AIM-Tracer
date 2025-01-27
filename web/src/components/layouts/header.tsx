@@ -19,6 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/src/components/ui/dropdown-menu";
 import {
+  AlertCircle,
   ChevronDownIcon,
   LoaderCircle,
   PlusIcon,
@@ -38,6 +39,7 @@ import {
 import { isCloudPlan, planLabels } from "@langfuse/shared";
 import { SidebarTrigger } from "@/src/components/ui/sidebar";
 import { EnvLabel } from "@/src/components/EnvLabel";
+import { api } from "@/src/utils/api";
 
 export default function Header({
   level = "h2",
@@ -56,6 +58,11 @@ export default function Header({
   level?: "h2" | "h3";
   className?: string;
 }) {
+
+ //! AIM Intelligence => AIMHeader
+
+
+
   return (
     <div
       className={cn(
@@ -66,6 +73,7 @@ export default function Header({
       )}
     >
       {level === "h2" && (
+        <div className="flex w-full justify-between">
         <div className="flex items-center">
           <SidebarTrigger />
           <div className="ml-3">
@@ -76,6 +84,17 @@ export default function Header({
             className="ml-3 border-l pl-3"
           />
         </div>
+     
+        <div className="flex items-center">
+          <AlertCircle>
+
+          </AlertCircle>
+        </div>
+        </div>
+
+
+
+
       )}
 
       <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
@@ -124,6 +143,8 @@ export default function Header({
           {props.actionButtons ?? null}
         </div>
       </div>
+
+     
     </div>
   );
 }

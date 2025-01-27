@@ -31,6 +31,7 @@ import {
   ChevronsDownUp,
   ChevronsUpDown,
   FilterIcon,
+  Grape,
   ListTree,
   Network,
   Percent,
@@ -51,6 +52,7 @@ import {
   TabsBarTrigger,
 } from "@/src/components/ui/tabs-bar";
 import { useHasEntitlement } from "@/src/features/entitlements/hooks";
+import { TraceGraphRagView } from '@/src/components/trace/AIMTraceGraphRagView';
 
 export function Trace(props: {
   observations: Array<ObservationReturnType>;
@@ -303,6 +305,7 @@ export function TracePage({
   const isAuthenticatedAndProjectMember = useIsAuthenticatedAndProjectMember(
     router.query.projectId as string,
   );
+  
   const trace = api.traces.byIdWithObservationsAndScores.useQuery(
     {
       traceId,
@@ -480,6 +483,11 @@ export function TracePage({
             <Network className="mr-1 h-4 w-4"></Network>
             Tree
           </TabsBarTrigger>
+          {/* //! AIM Intelligence */}
+          <TabsBarTrigger value="graphrag">
+            <Grape className="mr-1 h-4 w-4"></Grape>
+            Policies
+          </TabsBarTrigger>
           <TabsBarTrigger value="timeline">
             <ListTree className="mr-1 h-4 w-4"></ListTree>
             Timeline
@@ -496,6 +504,13 @@ export function TracePage({
             projectId={trace.data.projectId}
             observations={trace.data.observations}
           />
+        </TabsBarContent>
+           {/*//! AIM Intelligence */}
+        <TabsBarContent
+          value="graphrag"
+          className="mt-5 h-full flex-1 overflow-y-auto md:overflow-hidden md:overflow-y-hidden"
+        >
+          <TraceGraphRagView trace={trace.data} traceId={trace.data.id} />
         </TabsBarContent>
         <TabsBarContent
           value="timeline"

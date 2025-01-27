@@ -28,6 +28,7 @@ import SetupTracingButton from "@/src/features/setup/components/SetupTracingButt
 import { useUiCustomization } from "@/src/ee/features/ui-customization/useUiCustomization";
 import { ScrollScreenPage } from "@/src/components/layouts/scroll-screen-page";
 import { useEntitlementLimit } from "@/src/features/entitlements/hooks";
+import { AIMScoreAnalytics } from '@/src/features/dashboard/components/score-analytics/AIMScoreAnalytics';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -176,8 +177,10 @@ export default function Dashboard() {
             description="Your feedback matters! Let the Langfuse team know what additional data or metrics you'd like to see in your dashboard."
             className="hidden lg:flex"
           >
+            {/* //! AIM Intelligence */}
             <Button
               id="date"
+              disabled={true}
               variant={"outline"}
               className={
                 "group justify-start gap-x-3 text-left font-semibold text-primary hover:bg-primary-foreground hover:text-primary-accent"
@@ -193,6 +196,16 @@ export default function Dashboard() {
         )}
       </div>
       <div className="grid w-full grid-cols-1 gap-3 overflow-hidden lg:grid-cols-2 xl:grid-cols-6">
+
+        {/* //! AIM Intelligence */}
+      {!disableExpensiveDashboardComponents && (
+          <AIMScoreAnalytics
+            className="col-span-1 flex-auto justify-between lg:col-span-full"
+            agg={agg}
+            projectId={projectId}
+            globalFilterState={mergedFilterState}
+          />
+        )}
         <TracesBarListChart
           className="col-span-1 xl:col-span-2"
           projectId={projectId}
@@ -252,14 +265,15 @@ export default function Dashboard() {
             globalFilterState={mergedFilterState}
           />
         )}
-        {!disableExpensiveDashboardComponents && (
+        {/* //! AIM Intelligence */}
+        {/* {!disableExpensiveDashboardComponents && (
           <ScoreAnalytics
             className="col-span-1 flex-auto justify-between lg:col-span-full"
             agg={agg}
             projectId={projectId}
             globalFilterState={mergedFilterState}
           />
-        )}
+        )} */}
       </div>
     </ScrollScreenPage>
   );

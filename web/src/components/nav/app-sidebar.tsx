@@ -18,7 +18,9 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import { Alert, AlertDescription } from "@/src/components/ui/alert";
 import { LangfuseLogo } from "@/src/components/LangfuseLogo";
-import { SidebarNotifications } from "@/src/components/nav/sidebar-notifications";
+
+//! AIM Intelligence
+//import { SidebarNotifications } from "@/src/components/nav/sidebar-notifications";
 import { UsageTracker } from "@/src/ee/features/billing/components/UsageTracker";
 
 type AppSidebarProps = {
@@ -46,7 +48,7 @@ export function AppSidebar({
         <div className="flex-1" />
         <div className="flex flex-col gap-2 p-2">
           <UsageTracker />
-          <SidebarNotifications />
+          {/* <SidebarNotifications /> */}
         </div>
         <NavMain items={secondaryNavItems} />
       </SidebarContent>
