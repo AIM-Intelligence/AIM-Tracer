@@ -37,7 +37,7 @@ import {
   Percent,
 } from "lucide-react";
 import { usdFormatter } from "@/src/utils/numbers";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { DeleteButton } from "@/src/components/deleteButton";
 import { usePostHogClientCapture } from "@/src/features/posthog-analytics/usePostHogClientCapture";
 import { TraceTimelineView } from "@/src/components/trace/TraceTimelineView";
@@ -305,6 +305,40 @@ export function TracePage({
   const isAuthenticatedAndProjectMember = useIsAuthenticatedAndProjectMember(
     router.query.projectId as string,
   );
+
+  // ! AIM Intelligence
+  const [policies, setPolicies] = useState<any[]>([]);
+
+  const fetchPolicies = useCallback(async () => {
+    try {
+      const response = await fetch('/api/aim/get-policies', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          project_id: router.query.projectId,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to fetch policies: ${errorText}`);
+      }
+
+      const data = await response.json();
+      setPolicies(data);
+    } catch (error) {
+      console.error('Error fetching policies:', error);
+    }
+  }, [router.query.projectId]);
+
+  useEffect(() => {
+    if (router.query.projectId) {
+      fetchPolicies();
+    }
+  }, [router.query.projectId, fetchPolicies]);
+
   
   const trace = api.traces.byIdWithObservationsAndScores.useQuery(
     {
@@ -510,7 +544,7 @@ export function TracePage({
           value="graphrag"
           className="mt-5 h-full flex-1 overflow-y-auto md:overflow-hidden md:overflow-y-hidden"
         >
-          <TraceGraphRagView trace={trace.data} traceId={trace.data.id} />
+          <TraceGraphRagView trace={trace.data} traceId={trace.data.id} policies={policies} />
         </TabsBarContent>
         <TabsBarContent
           value="timeline"

@@ -12,8 +12,8 @@ import { GraphChart } from "echarts/charts";
 import { CanvasRenderer } from "echarts/renderers";
 import type { EChartsOption } from "echarts/types/dist/shared";
 import { generateGraph } from "@/src/components/trace/AIMgraphRag/graphRag-eu";
-import { data } from "@/src/components/trace/AIMgraphRag/safe-guide-eu";
-import { parents } from "@/src/components/trace/AIMgraphRag/parent-node-eu";
+// import { data } from "@/src/components/trace/AIMgraphRag/safe-guide-eu";
+// import { parents } from "@/src/components/trace/AIMgraphRag/parent-node-eu";
 import { useActiveNodesStore } from "@/src/store/activeNodes";
 
 echarts.use([
@@ -79,19 +79,35 @@ interface GraphData {
 export function TraceGraphRagView({
   trace,
   traceId,
+  policies
 }: {
   trace: Trace & { latency?: number } & { output?: any };
   traceId: string;
+  policies: any;
 }) {
+
+  const parentNode = {parents: policies.policies.parents, relationships: policies.policies.relationships}
+  const rawLeafNode =  policies.policies.policies
+
+  const leafNode = rawLeafNode.map((node: any) => ({
+    ...node,
+    severity_level: 1,
+    response_template: [""]  // response_template을 배열로 설정
+  }));
+
+
+  console.log("parentNode", parentNode);
+  console.log("leafNode", leafNode);
+
+
   const { setActiveNodeLog } = useActiveNodesStore();
+
 
   // trace.output?.active_paths가 없을 때의 기본값 설정
   const defaultActiveNodeLog = {
     // 기본적으로 모든 노드를 활성화 상태로 설정
     all_nodes_active: true,
   };
-
-  console.log("trace", trace.output.policies);
 
   // trace.output?.active_paths.active_node_log가 변경될 때마다 store 업데이트
   useEffect(() => {
@@ -120,7 +136,7 @@ export function TraceGraphRagView({
     state.getActiveNodeLog(traceId),
   );
 
-  const graphData = generateGraph(data as any, parents);
+  const graphData = generateGraph(leafNode as any, parentNode);
 
   const chartRef = useRef<HTMLDivElement>(null);
   const chartInstance = useRef<echarts.ECharts | null>(null);
@@ -132,20 +148,20 @@ export function TraceGraphRagView({
     isInitialRender: boolean = false,
   ) => {
     // Create maps for quick lookups
-    const policyMap = new Map(data.map((policy) => [policy.policy_id, policy]));
+    const policyMap = new Map(leafNode.map((policy: any) => [policy.policy_id, policy]));
 
     // Create maps for parent and subparent nodes
     const parentMap = new Map();
-    parents.parents.forEach((parent) => {
+    parentNode.parents.forEach((parent: any) => {
       parentMap.set(parent.policy_id, parent);
-      parent.subparents?.forEach((subparent) => {
+      parent.subparents?.forEach((subparent: any) => {
         parentMap.set(subparent.policy_id, subparent);
       });
     });
 
     // Create map for relationships
     const relationshipMap = new Map();
-    parents.relationships.forEach((rel) => {
+    parentNode.relationships.forEach((rel: any) => {
       relationshipMap.set(`${rel.from}-${rel.to}`, rel);
     });
 
@@ -381,21 +397,21 @@ export function TraceGraphRagView({
 
         // Create maps for quick lookups
         const policyMap = new Map(
-          data.map((policy) => [policy.policy_id, policy]),
+          leafNode.map((policy: any) => [policy.policy_id, policy]),
         );
 
         // Create maps for parent and subparent nodes
         const parentMap = new Map();
-        parents.parents.forEach((parent) => {
+        parentNode.parents.forEach((parent: any) => {
           parentMap.set(parent.policy_id, parent);
-          parent.subparents?.forEach((subparent) => {
+          parent.subparents?.forEach((subparent: any) => {
             parentMap.set(subparent.policy_id, subparent);
           });
         });
 
         // Create map for relationships
         const relationshipMap = new Map();
-        parents.relationships.forEach((rel) => {
+          parentNode.relationships.forEach((rel: any) => {
           relationshipMap.set(`${rel.from}-${rel.to}`, rel);
         });
 
