@@ -105,8 +105,8 @@ export function TraceGraphRagView({
 
   // trace.output?.active_paths가 없을 때의 기본값 설정
   const defaultActiveNodeLog = {
-    // 기본적으로 모든 노드를 활성화 상태로 설정
-    all_nodes_active: true,
+    // Only set default when there's no existing state
+    all_nodes_active: useActiveNodesStore.getState().getActiveNodeLog(traceId).all_nodes_active ?? true,
   };
 
   // trace.output?.active_paths.active_node_log가 변경될 때마다 store 업데이트
@@ -117,15 +117,23 @@ export function TraceGraphRagView({
       if (trace.output?.active_paths) {
         if (typeof trace.output.active_paths === "string") {
           const parsed = JSON.parse(trace.output.active_paths);
-          newActiveNodeLog = parsed.active_node_log || defaultActiveNodeLog;
+          // Merge with existing state instead of replacing
+          newActiveNodeLog = {
+            ...useActiveNodesStore.getState().getActiveNodeLog(traceId),
+            ...parsed.active_node_log
+          };
         } else {
-          newActiveNodeLog =
-            trace.output.active_paths.active_node_log || defaultActiveNodeLog;
+          // Merge with existing state instead of replacing
+          newActiveNodeLog = {
+            ...useActiveNodesStore.getState().getActiveNodeLog(traceId),
+            ...trace.output.active_paths.active_node_log
+          };
         }
       }
     } catch (error) {
       console.warn("Error parsing active_paths:", error);
-      newActiveNodeLog = defaultActiveNodeLog;
+      // Keep existing state on error
+      newActiveNodeLog = useActiveNodesStore.getState().getActiveNodeLog(traceId);
     }
 
     setActiveNodeLog(traceId, newActiveNodeLog);

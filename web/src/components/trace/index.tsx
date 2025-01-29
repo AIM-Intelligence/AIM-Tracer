@@ -53,6 +53,7 @@ import {
 } from "@/src/components/ui/tabs-bar";
 import { useHasEntitlement } from "@/src/features/entitlements/hooks";
 import { TraceGraphRagView } from '@/src/components/trace/AIMTraceGraphRagView';
+import { Spinner } from '@/src/components/layouts/spinner';
 
 export function Trace(props: {
   observations: Array<ObservationReturnType>;
@@ -295,9 +296,11 @@ export function Trace(props: {
 export function TracePage({
   traceId,
   timestamp,
+  policies,
 }: {
   traceId: string;
   timestamp?: Date;
+  policies: any;
 }) {
   const capture = usePostHogClientCapture();
   const router = useRouter();
@@ -305,40 +308,6 @@ export function TracePage({
   const isAuthenticatedAndProjectMember = useIsAuthenticatedAndProjectMember(
     router.query.projectId as string,
   );
-
-  // ! AIM Intelligence
-  const [policies, setPolicies] = useState<any[]>([]);
-
-  const fetchPolicies = useCallback(async () => {
-    try {
-      const response = await fetch('/api/aim/get-policies', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          project_id: router.query.projectId,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to fetch policies: ${errorText}`);
-      }
-
-      const data = await response.json();
-      setPolicies(data);
-    } catch (error) {
-      console.error('Error fetching policies:', error);
-    }
-  }, [router.query.projectId]);
-
-  useEffect(() => {
-    if (router.query.projectId) {
-      fetchPolicies();
-    }
-  }, [router.query.projectId, fetchPolicies]);
-
   
   const trace = api.traces.byIdWithObservationsAndScores.useQuery(
     {
@@ -408,7 +377,10 @@ export function TracePage({
       />
     );
 
-  if (!trace.data) return <div>loading...</div>;
+  //! AIM Intelligence
+  if (!trace.data) return <div className="flex justify-center items-center h-full">
+    <Spinner message="Loading trace..." />
+  </div>;
 
   return (
     <FullScreenPage>
