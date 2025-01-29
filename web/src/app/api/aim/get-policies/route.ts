@@ -1,25 +1,46 @@
 //! AIM Intelligence
 import { NextRequest, NextResponse } from "next/server";
-import { authorizeRequestOrThrow } from "@/src/ee/features/playground/server/authorizeRequest";
+import { getServerSession } from "next-auth";
+import { getAuthOptions } from "@/src/server/auth";
+import { isProjectMemberOrAdmin } from '@/src/server/utils/checkProjectMembershipOrAdmin';
+import { ApiError, ForbiddenError, UnauthorizedError } from "@langfuse/shared";
 
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication
-    const { project_id } = await request.json();
-
-    console.log("Project ID:", project_id);
-
-    if (!project_id) {
+    // Extract and validate project_id first
+    let project_id: string;
+    try {
+      const body = await request.json();
+      project_id = body.project_id;
+      
+      if (!project_id) {
+        return NextResponse.json(
+          { error: "project_id is required" },
+          { status: 400 }
+        );
+      }
+    } catch (error) {
       return NextResponse.json(
-        { error: "project_id is required" },
+        { error: "Invalid request body" },
         { status: 400 }
       );
     }
 
-    // Authorize request
-    await authorizeRequestOrThrow(project_id);
+    // Authentication check
+    const authOptions = await getAuthOptions();
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      throw new UnauthorizedError("Unauthenticated");
+    }
 
-    // URLSearchParams를 사용하여 x-www-form-urlencoded 형식으로 변환
+    // Authorization check
+    if (!isProjectMemberOrAdmin(session.user, project_id)) {
+      throw new ForbiddenError("User is not a member of this project");
+    }
+
+    console.log("Project ID:", project_id);
+
+    // Proceed with API call only after all checks pass
     const formData = new URLSearchParams();
     formData.append('project_id', project_id);
 
@@ -41,9 +62,8 @@ export async function POST(request: NextRequest) {
     if (!response.ok) {
       const errorText = await response.text();
       console.error("Error response:", errorText);
-      return NextResponse.json(
-        { error: "Failed to fetch policies", details: errorText },
-        { status: response.status }
+      throw new ApiError(
+        "Get policies failed from AIM Server",
       );
     }
 
@@ -54,9 +74,8 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Error in get-policies:", error);
     if (error instanceof Error) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: error.message.includes("Unauthorized") ? 401 : 500 }
+      throw new ApiError(
+        "Get policies failed",
       );
     }
     return NextResponse.json(
