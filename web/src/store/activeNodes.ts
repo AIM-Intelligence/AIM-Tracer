@@ -2,10 +2,15 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+interface ActiveNodeLog {
+  all_nodes_active: boolean;
+  [key: string]: any;
+}
+
 interface ActiveNodesState {
-  activeNodeLogs: Record<string, Record<string, any>>; // traceId를 key로 사용
-  setActiveNodeLog: (traceId: string, log: Record<string, any>) => void;
-  getActiveNodeLog: (traceId: string) => Record<string, any>;
+  activeNodeLogs: Record<string, ActiveNodeLog>;
+  setActiveNodeLog: (traceId: string, log: ActiveNodeLog) => void;
+  getActiveNodeLog: (traceId: string) => ActiveNodeLog;
   clearActiveNodeLog: (traceId: string) => void;
 }
 
@@ -13,7 +18,7 @@ export const useActiveNodesStore = create<ActiveNodesState>()(
   persist(
     (set, get) => ({
       activeNodeLogs: {},
-      setActiveNodeLog: (traceId: string, log: Record<string, any>) =>
+      setActiveNodeLog: (traceId: string, log: ActiveNodeLog) =>
         set((state) => ({
           activeNodeLogs: {
             ...state.activeNodeLogs,
@@ -22,18 +27,18 @@ export const useActiveNodesStore = create<ActiveNodesState>()(
         })),
       getActiveNodeLog: (traceId: string) => {
         const state = get();
-        return state.activeNodeLogs[traceId] || {};
+        return state.activeNodeLogs[traceId] || { all_nodes_active: false };
       },
       clearActiveNodeLog: (traceId: string) =>
         set((state) => ({
           activeNodeLogs: {
             ...state.activeNodeLogs,
-            [traceId]: {},
+            [traceId]: { all_nodes_active: false },
           },
         })),
     }),
     {
-      name: 'active-nodes-storage', // unique name for localStorage key
+      name: 'active-nodes-storage',
       partialize: (state) => ({ activeNodeLogs: state.activeNodeLogs }),
     }
   )

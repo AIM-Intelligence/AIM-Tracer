@@ -379,7 +379,7 @@ export function TracePage({
 
   //! AIM Intelligence
   if (!trace.data) return <div className="flex justify-center items-center h-full">
-    <Spinner message="Loading trace..." />
+    <Spinner message="Loading trace" />
   </div>;
 
   return (
